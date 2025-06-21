@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AB Resizer Pro</title>
+    <style>
+        /* Pro System Styling */
+        :root {
+            --primary-color: #007bff;
+            --primary-hover: #0056b3;
+            --secondary-color: #6c757d;
+            --light-gray: #f8f9fa;
+            --dark-gray: #343a40;
+            --border-color: #ced4da;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --text-color: #212529;
+            --text-light: #f8f9fa;
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            --border-radius: 0.25rem;
+            --box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: #e9ecef; /* Light background for the page */
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .container {
+            background-color: var(--light-gray);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            width: 100%;
+            max-width: 700px;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 5px;
+            font-size: 2.5rem;
+        }
+        h1 .pro {
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            padding: 2px 8px;
+            border-radius: var(--border-radius);
+            font-size: 0.6em;
+            vertical-align: super;
+        }
+
+        .subtitle {
+            color: var(--secondary-color);
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            margin-bottom: 25px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .upload-area:hover, .upload-area.dragover {
+            background-color: #dde6ed;
+            border-color: var(--primary-color);
+        }
+
+        .upload-area p {
+            margin: 0;
+            font-size: 1.1rem;
+            color: var(--secondary-color);
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .image-preview-container {
+            margin-bottom: 25px;
+            border: 1px solid var(--border-color);
+            background-color: #fff;
+            padding: 10px;
+            border-radius: var(--border-radius);
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #imagePreview {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: var(--border-radius);
+            display: none; /* Hidden initially */
+        }
+        #previewPlaceholder {
+            color: var(--secondary-color);
+            font-style: italic;
+        }
+
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .control-group label {
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark-gray);
+        }
+
+        .control-group input[type="number"],
+        .control-group select {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            box-sizing: border-box;
+            width: 100%;
+        }
+        .control-group input[type="number"]:focus,
+        .control-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+        .checkbox-group input[type="checkbox"] {
+            margin-right: 8px;
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary-color);
+        }
+
+
+        .slider-group {
+            margin-top: 10px;
+        }
+        .slider-group input[type="range"] {
+            width: calc(100% - 50px);
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        .slider-group span {
+            display: inline-block;
+            width: 35px;
+            text-align: right;
+            vertical-align: middle;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            font-weight: 600;
+        }
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: var(--text-light);
+        }
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+        .btn-primary:disabled {
+            background-color: var(--secondary-color);
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+            color: var(--text-light);
+            display: none; /* Hidden initially */
+        }
+        .btn-success:hover {
+            background-color: #1e7e34;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: var(--text-light);
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        .status-message {
+            margin-top: 20px;
+            font-style: italic;
+            color: var(--secondary-color);
+        }
+        .status-message.error {
+            color: var(--danger-color);
+            font-weight: bold;
+        }
+
+        footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+            width: 100%;
+            max-width: 700px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            body { padding: 10px; }
+            .container { padding: 20px; }
+            h1 { font-size: 2rem; }
+            .subtitle { font-size: 1rem; }
+            .controls-grid { grid-template-columns: 1fr; } /* Stack controls on small screens */
+            .action-buttons { flex-direction: column; }
+            .btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AB Resizer <span class="pro">PRO</span></h1>
+        <p class="subtitle">Powerful Client-Side Image Resizing & Optimization</p>
+
+        <div class="upload-area" id="uploadArea">
+            <p>Drag & Drop your image here, or click to select</p>
+        </div>
+        <input type="file" id="fileInput" accept="image/jpeg, image/png, image/webp, image/gif">
+
+        <div class="image-preview-container">
+            <img id="imagePreview" src="#" alt="Image Preview">
+            <p id="previewPlaceholder">Image preview will appear here</p>
+        </div>
+        
+        <div id="controlsSection" style="display: none;">
+            <div class="controls-grid">
+                <div class="control-group">
+                    <label for="widthInput">Width (px):</label>
+                    <input type="number" id="widthInput" min="1">
+                </div>
+                <div class="control-group">
+                    <label for="heightInput">Height (px):</label>
+                    <input type="number" id="heightInput" min="1">
+                </div>
+                <div class="control-group">
+                    <label for="formatSelect">Output Format:</label>
+                    <select id="formatSelect">
+                        <option value="image/jpeg">JPEG</option>
+                        <option value="image/png">PNG</option>
+                        <option value="image/webp">WEBP</option>
+                    </select>
+                </div>
+                <div class="control-group" id="qualityGroup">
+                    <label for="qualitySlider">Quality (JPEG/WEBP):</label>
+                    <div class="slider-group">
+                        <input type="range" id="qualitySlider" min="1" max="100" value="90">
+                        <span id="qualityValue">90%</span>
+                    </div>
+                </div>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="aspectLock" checked>
+                <label for="aspectLock">Maintain Aspect Ratio</label>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button id="resizeButton" class="btn btn-primary" disabled>Resize Image</button>
+            <a id="downloadLink" class="btn btn-success" style="display:none;">Download Resized Image</a>
+            <button id="resetButton" class="btn btn-danger" style="display:none;">Reset / New Image</button>
+        </div>
+        <p id="statusMessage" class="status-message"></p>
+    </div>
+
+    <footer>
+        AB Resizer Pro © <span id="currentYear"></span>. All Rights Reserved (Client-Side Edition).
+    </footer>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const uploadArea = document.getElementById('uploadArea');
+        const imagePreview = document.getElementById('imagePreview');
+        const previewPlaceholder = document.getElementById('previewPlaceholder');
+        const controlsSection = document.getElementById('controlsSection');
+        
+        const widthInput = document.getElementById('widthInput');
+        const heightInput = document.getElementById('heightInput');
+        const aspectLock = document.getElementById('aspectLock');
+        const formatSelect = document.getElementById('formatSelect');
+        const qualityGroup = document.getElementById('qualityGroup');
+        const qualitySlider = document.getElementById('qualitySlider');
+        const qualityValue = document.getElementById('qualityValue');
+        
+        const resizeButton = document.getElementById('resizeButton');
+        const downloadLink = document.getElementById('downloadLink');
+        const resetButton = document.getElementById('resetButton');
+        const statusMessage = document.getElementById('statusMessage');
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        let originalImage = null;
+        let originalWidth = 0;
+        let originalHeight = 0;
+        let originalType = '';
+        let originalFilename = 'resized_image';
+
+        // --- Drag and Drop ---
+        uploadArea.addEventListener('click', () => fileInput.click());
+        uploadArea.addEventListener('dragover', (event) => {
+            event.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        uploadArea.addEventListener('drop', (event) => {
+            event.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = event.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (event) => {
+            if (event.target.files && event.target.files[0]) {
+                handleFile(event.target.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            if (!file.type.startsWith('image/')) {
+                showError('Please upload a valid image file (JPG, PNG, WEBP, GIF).');
+                return;
+            }
+            originalFilename = file.name.substring(0, file.name.lastIndexOf('.')) || 'resized_image';
+            originalType = file.type;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                originalImage = new Image();
+                originalImage.onload = () => {
+                    originalWidth = originalImage.width;
+                    originalHeight = originalImage.height;
+                    
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                    previewPlaceholder.style.display = 'none';
+                    
+                    widthInput.value = originalWidth;
+                    heightInput.value = originalHeight;
+                    
+                    controlsSection.style.display = 'block';
+                    resizeButton.disabled = false;
+                    resetButton.style.display = 'inline-block';
+                    downloadLink.style.display = 'none';
+                    downloadLink.href = '#';
+                    statusMessage.textContent = 'Image loaded. Adjust settings and click "Resize Image".';
+                    statusMessage.className = 'status-message';
+                    
+                    // Set default format based on original, or sensible default
+                    if (originalType === 'image/png') {
+                        formatSelect.value = 'image/png';
+                    } else if (originalType === 'image/webp') {
+                        formatSelect.value = 'image/webp';
+                    } else {
+                        formatSelect.value = 'image/jpeg'; // Default to JPEG
+                    }
+                    toggleQualitySlider();
+                };
+                originalImage.onerror = () => {
+                    showError('Could not load the image. It might be corrupted or an unsupported format.');
+                    resetApp();
+                };
+                originalImage.src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+
+        widthInput.addEventListener('input', () => {
+            if (originalImage && aspectLock.checked) {
+                const newWidth = parseInt(widthInput.value);
+                if (newWidth > 0) {
+                    heightInput.value = Math.round((originalHeight / originalWidth) * newWidth);
+                }
+            }
+        });
+
+        heightInput.addEventListener('input', () => {
+            if (originalImage && aspectLock.checked) {
+                const newHeight = parseInt(heightInput.value);
+                if (newHeight > 0) {
+                    widthInput.value = Math.round((originalWidth / originalHeight) * newHeight);
+                }
+            }
+        });
+
+        aspectLock.addEventListener('change', () => {
+            if (aspectLock.checked && originalImage && widthInput.value) {
+                 // Re-calculate height based on current width if aspect lock is re-enabled
+                const newWidth = parseInt(widthInput.value);
+                if (newWidth > 0) {
+                    heightInput.value = Math.round((originalHeight / originalWidth) * newWidth);
+                }
+            }
+        });
+
+        formatSelect.addEventListener('change', toggleQualitySlider);
+
+        function toggleQualitySlider() {
+            const selectedFormat = formatSelect.value;
+            if (selectedFormat === 'image/jpeg' || selectedFormat === 'image/webp') {
+                qualityGroup.style.display = 'block';
+            } else {
+                qualityGroup.style.display = 'none';
+            }
+        }
+
+        qualitySlider.addEventListener('input', () => {
+            qualityValue.textContent = qualitySlider.value + '%';
+        });
+
+        resizeButton.addEventListener('click', () => {
+            if (!originalImage) {
+                showError('Please load an image first.');
+                return;
+            }
+
+            const newWidth = parseInt(widthInput.value);
+            const newHeight = parseInt(heightInput.value);
+            const format = formatSelect.value;
+            const quality = parseInt(qualitySlider.value) / 100;
+
+            if (isNaN(newWidth) || isNaN(newHeight) || newWidth <= 0 || newHeight <= 0) {
+                showError('Please enter valid positive numbers for width and height.');
+                return;
+            }
+
+            statusMessage.textContent = 'Resizing... please wait.';
+            statusMessage.className = 'status-message';
+            resizeButton.disabled = true;
+
+            // Use a timeout to allow the UI to update before heavy canvas work
+            setTimeout(() => {
+                try {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = newWidth;
+                    canvas.height = newHeight;
+                    const ctx = canvas.getContext('2d');
+
+                    // For better quality on downscaling, some browsers might benefit from stepping down.
+                    // For simplicity here, we do a direct draw. For "Pro", you might implement multi-step draw.
+                    ctx.drawImage(originalImage, 0, 0, newWidth, newHeight);
+
+                    let mimeType = format;
+                    let fileExtension = format.split('/')[1];
+                    if (fileExtension === 'jpeg') fileExtension = 'jpg';
+
+
+                    const dataUrl = canvas.toDataURL(mimeType, (mimeType === 'image/jpeg' || mimeType === 'image/webp') ? quality : undefined);
+                    
+                    downloadLink.href = dataUrl;
+                    downloadLink.download = `${originalFilename}_${newWidth}x${newHeight}.${fileExtension}`;
+                    downloadLink.style.display = 'inline-block';
+                    
+                    statusMessage.textContent = 'Image resized successfully! Click download.';
+                    statusMessage.className = 'status-message'; // default style
+                    resizeButton.disabled = false;
+
+                } catch (error) {
+                    console.error("Resizing error:", error);
+                    showError('An error occurred during resizing. The image might be too large or an issue with the format.');
+                    resizeButton.disabled = false;
+                }
+            }, 50); // Small delay
+        });
+        
+        resetButton.addEventListener('click', resetApp);
+
+        function resetApp() {
+            fileInput.value = ''; // Clear file input
+            originalImage = null;
+            originalWidth = 0;
+            originalHeight = 0;
+            originalType = '';
+            originalFilename = 'resized_image';
+
+            imagePreview.src = '#';
+            imagePreview.style.display = 'none';
+            previewPlaceholder.style.display = 'block';
+            
+            controlsSection.style.display = 'none';
+            widthInput.value = '';
+            heightInput.value = '';
+            
+            resizeButton.disabled = true;
+            downloadLink.style.display = 'none';
+            downloadLink.href = '#';
+            resetButton.style.display = 'none';
+            
+            formatSelect.value = 'image/jpeg'; // Reset to default
+            qualitySlider.value = 90;
+            qualityValue.textContent = '90%';
+            toggleQualitySlider();
+            aspectLock.checked = true;
+
+            statusMessage.textContent = 'Ready to resize a new image.';
+            statusMessage.className = 'status-message';
+        }
+
+        function showError(message) {
+            statusMessage.textContent = message;
+            statusMessage.className = 'status-message error';
+        }
+
+        // Initial call
+        toggleQualitySlider(); // Hide quality slider if PNG is default (or based on initial formatSelect value)
+        resetApp(); // Initialize the state correctly
+        statusMessage.textContent = 'Upload an image to get started.';
+
+    </script>
+</body>
+</html>
